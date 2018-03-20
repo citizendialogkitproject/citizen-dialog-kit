@@ -1,0 +1,14 @@
+module.exports = {
+	HOST : '0.0.0.0',
+	PORT : 8080,
+	PORT_DISPLAY : 12345,
+	MYSQL_HOST : 'db',
+	MYSQL_USER : process.env.MYSQL_USER,
+	MYSQL_PASSWORD : process.env.MYSQL_PASSWORD,
+	MYSQL_DATABASE : process.env.MYSQL_DATABASE,
+	API_PATH_ORIGINAL : process.env.API_PATH_ORIGINAL,
+	API_PATH_PROCESSED : process.env.API_PATH_PROCESSED,
+	API_PIXEL_THRESHOLD : process.env.API_PIXEL_THRESHOLD || 127,
+	API_ADMIN_PASSWORD : process.env.API_ADMIN_PASSWORD || 'flotilla',
+	API_RESEND_IDENTICAL_IMAGE : (process.env.API_RESEND_IDENTICAL_IMAGE == 'true') ? true : false,
+};

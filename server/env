@@ -1,0 +1,9 @@
+MYSQL_ROOT_PASSWORD=kul_display
+MYSQL_DATABASE=kul_display
+MYSQL_USER=kul_display
+MYSQL_PASSWORD=kul_display
+API_PATH_ORIGINAL=/var/files/original
+API_PATH_PROCESSED=/var/files/processed
+API_PIXEL_THRESHOLD=127
+API_ADMIN_PASSWORD=flotilla
+API_RESEND_IDENTICAL_IMAGE=false
