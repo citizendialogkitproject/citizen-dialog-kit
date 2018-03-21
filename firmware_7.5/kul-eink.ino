@@ -8,7 +8,7 @@
 
 // fit to match
 #define TALK_PORT               54321   // TCP port on which server listens
-uint8_t server[] = { 51, 255, 71, 30 }; // IP of server
+uint8_t server[] = { 134, 58, 106, 7 }; // IP of server
 
 #define TALK_MAXWAIT            20
 #define TALK_IMAGE_HANDLE_LEN   36
