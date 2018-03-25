@@ -9,6 +9,7 @@ const bodyparser = require('body-parser');
 const net = require('net');
 const config = require('./config');
 const model = require('./model');
+const scheduling = require('./scheduling');
 const epaper = require('./epaper');
 
 const app = express();
@@ -31,6 +32,22 @@ app.use(function(req, res, next) {
 
 var err_snippet = { error : "unspecified error" };
 
+// ===============================
+// /api/debug
+// ===============================
+
+app.get('/api/debug', (req, res) => {
+	var now = new Date();
+	res.json({
+		now_scheduling_offset : scheduling.seconds_since_last_monday(),
+		now : now,
+	});
+});
+
+// ===============================
+// /api/display
+// ===============================
+
 app.get('/api/display', (req, res) => {
 	model.display_list(function(err, rows) {
 		if (err) {
@@ -48,13 +65,15 @@ app.post('/api/display', (req, res) => {
 		res.json({ "handle" : id });
 	});
 });
-
 app.get('/api/display/:handle', (req, res) => {
 	model.display_get(req.params.handle, function(err, rows) {
 		if (err || rows.length == 0) {
 			res.status(404).json({ error : "no such display" });
 		}
-		res.json(rows[0]);
+		scheduling.current_schedule(req.params.handle, function(s) {
+			rows[0]['schedule'] = s;
+			res.json(rows[0]);
+		});
 	});
 });
 app.delete('/api/display/:handle', (req, res) => {
@@ -100,6 +119,68 @@ app.put('/api/display/:handle/image', (req, res) => {
 		});
 	});
 });
+app.get('/api/display/:handle/schedule', (req, res) => {
+	model.display_get(req.params.handle, function(err, rows) {
+		if (err || rows.length == 0) {
+			console.log(err);
+			return res.status(404).json({ error : 'no such display' });
+		}
+		model.schedule_list(req.params.handle, undefined, function(err, rows) {
+			if (err) {
+				console.dir(err);
+				return res.status(500).json(err_snippet);
+			}
+			res.json(rows);
+		});
+	});
+});
+
+// ===============================
+// /api/schedule
+// ===============================
+
+app.get('/api/schedule', (req, res) => {
+	model.schedule_list(undefined, undefined, function(err, rows) {
+		if (err) {
+			console.dir(err);
+			return res.status(500).json(err_snippet);
+		}
+		res.json(rows);
+	});
+});
+app.post('/api/schedule', (req, res) => {
+	console.log("creating schedule start="+req.body.start+" stop="+req.body.stop+" image_handle="+req.body.image_handle+" display_handle="+req.body.display_handle);
+	model.display_get(req.body.display_handle, function(err, rows) {
+		if (err || rows.length == 0) {
+			return res.status(404).json({ error : "no such display" });
+		}
+		var display = rows[0];
+		model.image_get(req.body.image_handle, function(err, rows) {
+			if (err || rows.length == 0) {
+				return res.status(404).json({ error : "no such image" });
+			}
+			var image = rows[0];
+			model.schedule_create(display.id, image.id, req.body.start, req.body.stop, function(id, err, rows) {
+				if (err) {
+					return res.status(500).json(err_snippet);
+				}
+				res.json({ "handle" : id });
+			});
+		});
+	});
+});
+app.delete('/api/schedule/:handle', (req, res) => {
+	model.schedule_delete(req.params.handle, function(err, rows) {
+		if (err) {
+			res.status(404).json({ error : "no such schedule" });
+		}
+		res.sendStatus(204);
+	});
+});
+
+// ===============================
+// /api/image
+// ===============================
 
 app.get('/api/image', (req, res) => {
 	model.image_list(function(err, rows) {
@@ -199,11 +280,29 @@ app.get('/api/image/:handle/result', (req, res) => {
 		});
 	});
 });
+app.get('/api/image/:handle/schedule', (req, res) => {
+	model.image_get(req.params.handle, function(err, rows) {
+		if (err || rows.length == 0) {
+			console.log(err);
+			return res.status(404).json({ error : 'no such image' });
+		}
+		model.schedule_list(undefined, req.params.handle, function(err, rows) {
+			if (err) {
+				return res.status(500).json(err_snippet);
+			}
+			res.json(rows);
+		});
+	});
+});
 
 model.connect(function() {
 	app.listen(config.PORT, config.HOST);
 	console.log("running on " + config.HOST + ":" + config.PORT);
 });
+
+// ===============================
+// raw tcp pipe
+// ===============================
 
 function display_new_client(socket)
 {
@@ -247,14 +346,16 @@ function display_new_client(socket)
 						var image_next = rows[0];
 						var file_path = config.API_PATH_PROCESSED + path.sep + image_next.md5;
 						var file_data = fs.readFileSync(file_path);
-						socket.write(image_next.handle + ',');
 						if ((image_handle == display.image_handle) && !config.API_RESEND_IDENTICAL_IMAGE) {
 							console.log(prefix + " not sending image that the display already has");
+							socket.write(image_next.handle + ',', function() { socket.end(); });
 						} else {
 							console.log(prefix + " sending new image handle="+image_next.handle);
-							socket.write(file_data, function() {
-								console.log(prefix + " sent " + file_data.byteLength + " bytes.");
-								socket.end();
+							socket.write(image_next.handle + ',', function() {
+								socket.write(file_data, function() {
+									console.log(prefix + " sent " + file_data.byteLength + " bytes.");
+									socket.end();
+								});
 							});
 						}
 					}

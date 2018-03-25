@@ -31,6 +31,21 @@ CREATE TABLE IF NOT EXISTS `kul_display`.`display` (
 ) ENGINE = InnoDB;
 CREATE UNIQUE INDEX `display_handle` ON `kul_display`.`display` (`handle` ASC);
 
+DROP TABLE IF EXISTS `kul_display`.`schedule`;
+CREATE TABLE IF NOT EXISTS `kul_display`.`schedule` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`handle` VARCHAR(128) NOT NULL UNIQUE,
+	`created_at` DATETIME(6),
+	`start` INT,
+	`stop` INT,
+	`image_id` INT,
+	`display_id` INT,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`image_id`) REFERENCES `image`(`id`) ON DELETE CASCADE,
+	FOREIGN KEY (`display_id`) REFERENCES `display`(`id`) ON DELETE CASCADE
+) ENGINE = InnoDB;
+CREATE UNIQUE INDEX `schedule_handle` ON `kul_display`.`schedule` (`handle` ASC);
+
 DROP TABLE IF EXISTS `kul_display`.`result`;
 CREATE TABLE IF NOT EXISTS `kul_display`.`result` (
 	`id` INT NOT NULL AUTO_INCREMENT,

@@ -3,7 +3,9 @@
 . `dirname $0`/../env
 
 parse_something() {
-	P=`echo $2 | python -c "import json; import sys; x = json.loads(sys.stdin.readline()); print x['$1'];"`
+	local key=$1
+	shift
+	P=`echo $@ | python -c "import json; import sys; x = json.loads(sys.stdin.readline()); print x[0]['$key'] if type(x) is list else x['$key'];"`
 }
 
 URL="http://admin:$API_ADMIN_PASSWORD@localhost/api"
@@ -48,21 +50,42 @@ parse_something 'image_handle' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 # create and set another image (of wrong screen_type), read back
 parse_something 'handle' `curl -s -X POST --data name=$TS'_CCC' --data description=hello --data screen_type=7.5inch $URL/image`
 IMG_WRONG_HANDLE=$P
-curl -s -X PUT --data handle=$IMG_WRONG_HANDLE $URL/display/$DSPL_HANDLE/image
+parse_something 'error' `curl -s -X PUT --data handle=$IMG_WRONG_HANDLE $URL/display/$DSPL_HANDLE/image`
+[ "x$P" != "xscreen_type mismatch" ] && echo "FAIL: setting image of wrong display type succeeded" && exit 1
 parse_something 'image_handle' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not have set image" && exit 1
 
-# set contents of new image
-#TMPFILE=`mktemp`
-#echo -n "HELLOTHERE" > $TMPFILE
-#curl -s -F 'data=@'$TMPFILE $URL/image/$IMG_NEW_HANDLE/original
+# upload image data, read back and compare
+TMPFILE=`mktemp`
+TESTFILE_INPUT=`dirname $0`"/data/test_640x384_bw.png"
+TESTFILE_OUTPUT=`dirname $0`"/data/test_640x384_bw.eink"
+TESTFILE_INPUT_CHECKSUM=`md5sum $TESTFILE_INPUT | cut -d ' ' -f 1`
+TESTFILE_INPUT_SIZE=`wc -c $TESTFILE_INPUT | cut -d ' ' -f 1`
+TESTFILE_OUTPUT_SIZE=`wc -c $TESTFILE_OUTPUT | cut -d ' ' -f 1`
+curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$IMG_NEW_HANDLE/original
+parse_something 'md5' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE`
+[ "x$P" != "x$TESTFILE_INPUT_CHECKSUM" ] && echo "FAIL: server-computed checksum does not match local checksum" && exit 1
+parse_something 'bytes_original' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE`
+[ "x$P" != "x$TESTFILE_INPUT_SIZE" ] && echo "FAIL: server-computed original size does not match local size" && exit 1
+parse_something 'bytes_processed' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE`
+[ "x$P" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: server-computed processed size does not match local size" && exit 1
+curl -s $URL/image/$IMG_NEW_HANDLE/processed > $TMPFILE
+cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: processed image data does not match expected" && exit 1)
 
 # connect as display and report a result on the old image, read back should be new image
 #DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_HANDLE',some_value_at_'$TS | nc -q 1 localhost 12345`
 #IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
 #[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not receive new image"
 
+# create a schedule and read back
+parse_something 'handle'  `curl -s -X POST --data start=0 --data stop=1000 --data image_handle=$IMG_NEW_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+SCHED_HANDLE=$P
+parse_something 'handle'  `curl -s -X GET $URL/display/$DSPL_HANDLE/schedule`
+[ "x$P" != "x$SCHED_HANDLE" ] && echo "FAIL: display does not have set schedule" && exit 1
+parse_something 'handle'  `curl -s -X GET $URL/image/$IMG_NEW_HANDLE/schedule`
+[ "x$P" != "x$SCHED_HANDLE" ] && echo "FAIL: image does not have set schedule" && exit 1
+
 # delete everything
-curl -s -X DELETE $URL/display/$DSPL_HANDLE
-curl -s -X DELETE $URL/image/$IMG_HANDLE
-curl -s -X DELETE $URL/image/$IMG_NEW_HANDLE
+curl -s -X DELETE $URL/display/$DSPL_HANDLE || (echo "FAIL: deleting display did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_NEW_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)

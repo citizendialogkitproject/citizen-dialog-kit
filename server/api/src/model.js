@@ -41,6 +41,7 @@ exports.display_list = function(cb) {
 exports.display_get = function(handle, cb) {
 	var q = `
 		SELECT
+			d.id as id,
 			d.handle as handle,
 			d.serial as serial,
 			d.description as description,
@@ -192,4 +193,61 @@ exports.result_list_by_image = function(image_id, cb) {
 		function(err, rows) {
 			cb(err, rows);
 		});
+}
+
+exports.schedule_list = function(display_handle, image_handle, cb) {
+	var filter = '';
+	var params = [];
+	if (display_handle || image_handle) {
+		filter = 'WHERE';
+		if (display_handle) {
+			filter += ' d.handle = ?';
+			params.push(display_handle);
+		}
+		if (image_handle) {
+			filter += ' i.handle = ?';
+			params.push(image_handle);
+		}
+	}
+
+	var q = `
+		SELECT
+			s.handle as handle,
+			d.handle as display_handle,
+			i.handle as image_handle,
+			s.start as start,
+			s.stop as stop,
+			s.created_at as created_at
+		FROM
+			schedule s
+			INNER JOIN image i ON s.image_id = i.id
+			INNER JOIN display d ON s.display_id = d.id
+		`
+	q += filter;
+
+	pool.query(q, params,
+		function(err, rows) {
+			cb(err, rows);
+		});
+}
+
+exports.schedule_create = function(display_id, image_id, start, stop, cb) {
+	var id = uuid4();
+	var v = [ id, display_id, image_id, start, stop ];
+	var q = `
+		INSERT INTO
+			schedule (handle, created_at, display_id, image_id, start, stop)
+		VALUES
+			(?, UTC_TIMESTAMP(6), ?, ?, ?, ?)
+		`
+
+	pool.query(q, v,
+		function(err, rows) {
+			cb(id, err, rows);
+		});
+}
+exports.schedule_delete = function(handle, cb) {
+	pool.query('DELETE FROM schedule WHERE handle = ?', [ handle ], function(err, ret) {
+		cb(err, ret);
+	});
 }
