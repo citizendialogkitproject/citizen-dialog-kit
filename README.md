@@ -14,7 +14,8 @@ The Citizen Dialog Kit is still in development and important features (such as s
 1. [Hardware Assembly and Firmware Installation](#1-hardware-and-firmware)
 2. [Server Setup](#2-server-setup)
 3. [Display Management API](#3-display-management-api)
-4. [Weather Resistant Casing](#4-weather-resistant-casing)
+4. [Display Management Demo Front-end](#4-display-management-demo)
+5. [Weather Resistant Casing](#5-weather-resistant-casing)
 
 ### 1. Hardware and Firmware
 #### Required parts;
@@ -34,7 +35,7 @@ Set up the Electron following it’s supplied documentation. This implies creati
 
 The outcome of this should be an Electron fully set up with antenna, SIM and battery. You can attach the battery and have it connected with USB to your computer at the same time (this also charges the battery). The RGB led should be “breathing” cyan/white, meaning it’s connected to the internet and ready to go.
 
-One last step here is to make sure that the base firmware (as supplied by Particle.io) is updated to a newer version. My unit came with 0.4.8 which contained some problems, these were alleviated by upgrading to 0.6.4. I did this as described in the section “THE SIMPLE WAY (ONE CLI COMMAND)” as described on the following URL (this required me to install the Particle.io software suite): https://docs.particle.io/support/troubleshooting/firmware-upgrades/electron/ .
+One last step here is to make sure that the base firmware (as supplied by Particle.io) is updated to a newer version. My unit came with 0.4.8 which contained some problems, these were alleviated by upgrading to 0.6.4. Do this as described in the section “THE SIMPLE WAY (ONE CLI COMMAND)” as described on the following URL (this required me to install the Particle.io software suite): https://docs.particle.io/support/troubleshooting/firmware-upgrades/electron/ .
 
 #### Setup the display
 
@@ -50,9 +51,9 @@ The jumpers on the supplied “e-Paper HAT” were placed correctly on my unit:
 
 (Please unplug the Electron from the battery and any USB cables before wiring up anything.)
 
-This is straightforward, I used the supplied bundle of cables with the white connector connecting to the “e-Paper HAT”, and extended these with standard “Dupont cables” (with the same colors) to plug them into the breadboard (on which the Electron was plugged in). The breadboard isn’t necessary, one can also just connect the supplied bundle of cables directly to the relevant pins of the Electron. But the breadboard becomes needed later on when connecting buttons etc.
+This is straightforward, use the supplied bundle of cables with the white connector connecting to the “e-Paper HAT”, and extended these with standard “Dupont cables” (with the same colors) to plug them into the breadboard (on which the Electron was plugged in). The breadboard isn’t necessary, one can also just connect the supplied bundle of cables directly to the relevant pins of the Electron. But the breadboard becomes needed later on when connecting buttons etc.
 
-The pin mapping is as follows. On the left are the pins of the Electron (they are labeled on the top as well as on the side of the Electron, or one can use the supplied graphic cardboard). On the right are the pins on the white connector on the “e-Paper HAT”. In between is the color of the cables, at least the ones I got (not assuming they are the same, please check!).
+The pin mapping is as follows. On the left are the pins of the Electron (they are labeled on the top as well as on the side of the Electron, or one can use the supplied graphic cardboard). On the right are the pins on the white connector on the “e-Paper HAT”. In between is the color of the cables (please check!).
 
 * 3V3 - red - 3V3
 * GND - black - GND
@@ -289,5 +290,11 @@ The value field here is the raw data supplied by the display. At the time of wri
 "0=XXXX|1=XXXX|2=XXXX|3=XXXX|4=XXXX"
 Where the 0 till 4 indices are the buttons on the display, and the XXXX's are the number of times that button has been pressed (zero-padded to four digits).
 
-### 4. Weather Resistant Casing
+### 4. Display Management Demo
+A demo front-end application is added to the repository to demonstrate display management using the API. Will be updated as features are added to the API.
+
+** SECURITY**
+This demo has passwords in the open. Use a solution like [nginx basic authentication](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/) to protect the sensitive information.
+
+### 5. Weather Resistant Casing
 Designs for easy laser cutter casing manufacturing and assembly will be shared soon.
