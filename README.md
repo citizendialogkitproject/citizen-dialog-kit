@@ -11,21 +11,21 @@ Use this tool kit to build and deploy impactful public displays to start convers
 The Citizen Dialog Kit is still in development and important features (such as scheduling) are not supported yet. Updates to come.
 
 ## Documentation
-1. [Hardware Assembly and Firmware Installation](#hardware-and-firmware)
-2. [Server Setup](#server-setup)
-3. [Display Management API](#display-management-api)
+1. [Hardware Assembly and Firmware Installation](###hardware-and-firmware)
+2. [Server Setup](###server-setup)
+3. [Display Management API](###display-management-api)
 4. [Weather Resistant Casing](#weather-resistant-casing)
 
 ### 1. Hardware and Firmware
 #### Required parts;
-1x Particle.io Electron (with accessories)
-1x Waveshare 7.5inch white/black/red epaper display
-(recommended) 1x bundle of male/male “dupont cables” in various colors
-2x small breadboards (or 1x large)
-5x momentary buttons
-5x 22kOhm resistors (red/red/orange) (exact value depends on button type)
-(optional) 1x piezo buzzer
-(optional) 1x 120Ohm resistor (brown/red/brown) (exact value depends on piezo buzzer type)
+- [ ] 1x Particle.io Electron (with accessories)
+- [ ] 1x Waveshare 7.5inch white/black/red epaper display
+- [ ] (recommended) 1x bundle of male/male “dupont cables” in various colors
+- [ ] 2x small breadboards (or 1x large)
+- [ ] 5x momentary buttons
+- [ ] 5x 22kOhm resistors (red/red/orange) (exact value depends on button type)
+- [ ] (optional) 1x piezo buzzer
+- [ ] (optional) 1x 120Ohm resistor (brown/red/brown) (exact value depends on piezo buzzer type)
 
 #### Setup the Electron
 This process is for 7.5" display but is identical for other SPI e-ink displays from the same manufacturer.
@@ -54,14 +54,14 @@ This is straightforward, I used the supplied bundle of cables with the white con
 
 The pin mapping is as follows. On the left are the pins of the Electron (they are labeled on the top as well as on the side of the Electron, or one can use the supplied graphic cardboard). On the right are the pins on the white connector on the “e-Paper HAT”. In between is the color of the cables, at least the ones I got (not assuming they are the same, please check!).
 
-3V3 - red - 3V3
-GND - black - GND
-A5 - blue - DIN
-A3 - yellow - CLK
-A2 - orange - CS
-D0 - green - DC
-D1 - white - RST
-D2 - purple - BUSY
+* 3V3 - red - 3V3
+* GND - black - GND
+* A5 - blue - DIN
+* A3 - yellow - CLK
+* A2 - orange - CS
+* D0 - green - DC
+* D1 - white - RST
+* D2 - purple - BUSY
 
 #### Connect the buttons
 
@@ -117,15 +117,16 @@ The "docker-compose.yml" file contains all the usual port bindings, please edit 
 There is a central configuration file called "env" at the root of the project, it can be edited (don't forget a docker-compose restart!) and contains the following keys:
 
 
-MYSQL_{ROOT_PASSWORD,DATABASE,USER,PASSWORD}; used by the "api" container to talk to the "db" container (and by the "db" container itself upon first run, to create the necessary database and user etc).
-API_PATH_{ORIGINAL,PROCESSED}; used by the "api" container to determine where to store its image files (the default location points to a volume set in "docker-compose.yml" for easy backups).
-API_PIXEL_THRESHOLD; a 0-255 value used by the API when transcoding images to the display format, basically the pixel value threshold used to decide if a pixel is black or red or white.
-API_ADMIN_PASSWORD; the password for the "admin" user in non-GET API calls.
-API_RESEND_IDENTICAL_IMAGE; "true" or "false", when a display comes looking for a new image but the new image is the same as the old one, it will not send the display the image again if this flag is set to "true" (but will otherwise).
+* MYSQL_{ROOT_PASSWORD,DATABASE,USER,PASSWORD}; used by the "api" container to talk to the "db" container (and by the "db" container itself upon first run, to create the necessary database and user etc).
+* API_PATH_{ORIGINAL,PROCESSED}; used by the "api" container to determine where to store its image files (the default location points to a volume set in "docker-compose.yml" for easy backups).
+* API_PIXEL_THRESHOLD; a 0-255 value used by the API when transcoding images to the display format, basically the pixel value threshold used to decide if a pixel is black or red or white.
+* API_ADMIN_PASSWORD; the password for the "admin" user in non-GET API calls.
+* API_RESEND_IDENTICAL_IMAGE; "true" or "false", when a display comes looking for a new image but the new image is the same as the old one, it will not send the display the image again if this flag is set to "true" (but will otherwise).
 
 #### Backups
 
 Backups come in two parts:
+
 The database contents, via the scripts detailed below.
 The image files themselves, in the default config they are present in the "/api/files" folder which can simply be zipped.
 If you change the API_PATH_* configuration, be sure to update "docker-compose.yml" to match so the files can be reached from outside the container!
