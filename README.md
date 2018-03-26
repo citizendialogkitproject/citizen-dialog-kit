@@ -11,10 +11,10 @@ Use this tool kit to build and deploy impactful public displays to start convers
 The Citizen Dialog Kit is still in development and important features (such as scheduling) are not supported yet. Updates to come.
 
 ## Documentation
-1. [Hardware Assembly and Firmware Installation](###hardware-and-firmware)
-2. [Server Setup](###server-setup)
-3. [Display Management API](###display-management-api)
-4. [Weather Resistant Casing](#weather-resistant-casing)
+1. [Hardware Assembly and Firmware Installation](#1-hardware-and-firmware)
+2. [Server Setup](#2-server-setup)
+3. [Display Management API](#3-display-management-api)
+4. [Weather Resistant Casing](#4-weather-resistant-casing)
 
 ### 1. Hardware and Firmware
 #### Required parts;
