@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <script src="https://code.jquery.com/jquery-3.3.1.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="design/css/styles.css">
+    <title>Citizen Dialog Kit | Research[x]Design</title>
+  </head>
+  <body onload='getDisplayinfo()'>
+    <div class="container">
+      <h1><img src="design/images/cdk-logo-icon.png" alt="citizen dialog kit logo">citizen dialog kit</h1>
+      <h2 class="current">Edit display</h2>
+      <ul class="nav justify-content-end">
+          <button type="button" onclick="deleteDisplay()" class="btn btn-danger deletebutton">Delete Display</button>
+          <button type="button" onclick="window.location.href = 'start.html'" class="btn btn-secondary cancelbutton">Cancel</button>
+      </ul>
+      <div class="addForm">
+          <form class="displayInfo">
+          <div class="form-group">
+            <label for="displayID">Display ID</label>
+            <input name="serial" type="text" class="form-control" id="displayID" placeholder="Enter id">
+            <small class="form-text text-muted">The ID of the display is the Serial Number of your Particle.io board.</small>
+          </div>
+          <div class="form-group">
+            <label for="displayDescr">Description</label>
+            <input name="description" type="text" class="form-control" id="displayDescr" placeholder="A brief description">
+            <small class="form-text text-muted">A description to make it easier to identify this display.</small>
+          </div>
+          <!-- <div class="form-group">
+            <label for="tags">Tags</label>
+            <input name="tags" type="text" class="form-control" id="tags" placeholder="Enter tags">
+            <small class="form-text text-muted">You can use tags to group displays, for example by a location tag. List tags with a comma between them.</small>
+          </div> -->
+          <div class="form-group">
+            <label for="displayType">Type of display</label>
+            <select name="screen_type" class="form-control" id="displayType">
+              <option value="Black-White">Black-White</option>
+              <option value="Black-White-Red">Black-White-Red</option>
+              <option value="Black-White-Yellow">Black-White-Yellow</option>
+            </select>
+          </div>
+          <!-- <div class="form-check">
+            <input name="interactive" type="checkbox" class="form-check-input" id="interactive">
+            <label class="form-check-label" for="interactive">This display has buttons</label>
+          </div> -->
+          <br>
+          <button type="submit" onclick="updateDisplay()" class="btn btn-primary addDisplay">Update display</button>
+        </form>
+      </div>
+      <div class="success" style="display:none">
+        <div class="alert alert-success" role="alert">
+          The display was updated successfully! <br/><a href="start.html" class="alert-link">Back to overview</a>
+        </div>
+      </div>
+      <div class="success2" style="display:none">
+        <div class="alert alert-success" role="alert">
+          The display was deleted successfully! <br/><a href="start.html" class="alert-link">Back to overview</a>
+        </div>
+      </div>
+      <div class="failed" style="display:none">
+        <div class="alert alert-dark" role="alert">
+          Something went wrong. Double check your information.
+        </div>
+      </div>
+    </div>
+  <footer class="footer font-small blue pt-4 mt-4">
+      <div class="footer-copyright py-3 text-center">
+          <a target="_blank" href="http://CitizenDialogueKit.org"> CitizenDialogueKit.org </a>
+      </div>
+  </footer>
+  </body>
+  <script src="app.js" charset="utf-8"></script>
+</html>
