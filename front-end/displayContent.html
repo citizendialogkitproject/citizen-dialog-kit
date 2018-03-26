@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <script src="https://code.jquery.com/jquery-3.3.1.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="design/css/styles.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700,900" rel="stylesheet">
+    <title>Citizen Dialog Kit | Research[x]Design</title>
+  </head>
+  <body onload='getDisplayContent()'>
+    <div class="container">
+      <h1><img src="design/images/cdk-logo-icon.png" alt="citizen dialog kit logo">citizen dialog kit</h1>
+      <h2 class="current">Plan Content</h2>
+      <ul class="nav justify-content-start">
+        <a class="backButton" href="start.html">< Back</a>
+      </ul>
+      <div class="currentImage">
+        <h4>Current image</h4>
+        <img src="" alt="">
+        <br><br>
+        <div class="curImageInfo"></div>
+      <hr>
+      </div>
+        <form class="imageInfo" enctype="multipart/form-data" action="" method="post">
+          <h4>Upload new image</h4>
+          <div class="form-group">
+            <label for="imageName">Name</label>
+            <input name="name" type="text" class="form-control" id="imageName" placeholder="A name for this image">
+            <small class="form-text text-muted">A name to make it easier to identify this image.</small>
+          </div>
+          <div class="form-group">
+            <label for="imageDescr">Description</label>
+            <input name="description" type="text" class="form-control" id="imageDescr" placeholder="A brief description">
+            <small class="form-text text-muted">A description to make it easier to identify this image.</small>
+          </div>
+          <div class="form-group">
+            <label for="imageType">Type of image</label>
+            <select name="screen_type" class="form-control" id="imageType">
+              <option>Black-White</option>
+              <option>Black-White-Red</option>
+              <option>Black-White-Yellow</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <div class="custom-file">
+              <input onchange="setfilename(this.value);" type="file" name="data[]" class="custom-file-input" id="inputGroupFile01">
+              <label  class="custom-file-label" for="inputGroupFile01">Choose file</label>
+            </div>
+          </div>
+          <br>
+          <button type="submit" id="uploadimage" class="btn btn-primary addContent">Add content</button>
+        </form>
+      <div class="success" style="display:none">
+        <div class="alert alert-success" role="alert">
+          The new content was set successfully! <br/><a href="start.html" class="alert-link">Back to overview</a>
+        </div>
+      </div>
+      <div class="failed" style="display:none">
+        <div class="alert alert-dark" role="alert">
+          Something went wrong. Double check your information. Did you set the right image type for this display?
+        </div>
+      </div>
+      <div class="failed2" style="display:none">
+        <div class="alert alert-dark" role="alert">
+          Something went really wrong... Head back and try again or find help.
+        </div>
+      </div>
+    </div>
+  <footer class="footer">
+      <div class="footer-copyright py-3 text-center">
+          <a target="_blank" href="http://CitizenDialogueKit.org"> CitizenDialogueKit.org </a>
+      </div>
+  </footer>
+  </body>
+  <script src="app.js" charset="utf-8"></script>
+</html>
