@@ -251,3 +251,28 @@ exports.schedule_delete = function(handle, cb) {
 		cb(err, ret);
 	});
 }
+
+exports.schedule_get = function(handle, cb) {
+	q = `
+		SELECT
+			s.handle as handle,
+			d.handle as display_handle,
+			i.handle as image_handle,
+			s.start as start,
+			s.stop as stop,
+			s.created_at as created_at
+		FROM
+			schedule s
+			INNER JOIN image i ON s.image_id = i.id
+			INNER JOIN display d ON s.display_id = d.id
+		WHERE
+			s.handle = ?
+		`
+
+	pool.query(q, [ handle ],
+		function(err, rows) {
+			cb(err, rows);
+		});
+}
+
+

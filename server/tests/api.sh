@@ -71,21 +71,108 @@ parse_something 'bytes_processed' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE`
 [ "x$P" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: server-computed processed size does not match local size" && exit 1
 curl -s $URL/image/$IMG_NEW_HANDLE/processed > $TMPFILE
 cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: processed image data does not match expected" && exit 1)
+rm -rf $TMPFILE
 
 # connect as display and report a result on the old image, read back should be new image
-#DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_HANDLE',some_value_at_'$TS | nc -q 1 localhost 12345`
-#IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
-#[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not receive new image"
+TMPFILE=`mktemp`
+DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_HANDLE',some_value_at_'$TS | nc -q 1 localhost 54321`
+IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
+IMG_RECEIVED_SLEEP=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 2`
+IMG_RECEIVED_DATA=`echo -n $DISPLAY_OUTPUT | dd bs=1 skip=48 of=$TMPFILE 2> /dev/null`
+[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not receive new image"
+cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: received image data does not match expected" && exit 1)
+TMPFILE_SIZE=`wc -c $TMPFILE | cut -d ' ' -f 1`
+[ "x$TMPFILE_SIZE" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: received image data is not of expected length" && exit 1
+rm -rf $TMPFILE
 
-# create a schedule and read back
-parse_something 'handle'  `curl -s -X POST --data start=0 --data stop=1000 --data image_handle=$IMG_NEW_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+# connect as display and report current image, read back should be dependent on server settings
+TMPFILE=`mktemp`
+DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_NEW_HANDLE',some_value_at_'$TS | nc -q 1 localhost 54321`
+IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
+IMG_RECEIVED_SLEEP=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 2`
+IMG_RECEIVED_DATA=`echo -n $DISPLAY_OUTPUT | dd bs=1 skip=48 of=$TMPFILE 2> /dev/null`
+[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not receive new image"
+if [ "$API_RESEND_IDENTICAL_IMAGE" = "false" ]; then
+	TMPFILE_SIZE=`wc -c $TMPFILE | cut -d ' ' -f 1`
+	[ "$TMPFILE_SIZE" != "0" ] && echo "FAIL: received image data when i should not have" && exit 1
+else
+	cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: received image data does not match expected" && exit 1)
+	TMPFILE_SIZE=`wc -c $TMPFILE | cut -d ' ' -f 1`
+	[ "x$TMPFILE_SIZE" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: received image data is not of expected length" && exit 1
+fi
+rm -rf $TMPFILE
+
+# create a simple schedule, read back and delete
+parse_something 'handle' `curl -s -X POST --data start=0 --data stop=1000 --data image_handle=$IMG_NEW_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_HANDLE=$P
-parse_something 'handle'  `curl -s -X GET $URL/display/$DSPL_HANDLE/schedule`
+parse_something 'handle' `curl -s -X GET $URL/display/$DSPL_HANDLE/schedule`
 [ "x$P" != "x$SCHED_HANDLE" ] && echo "FAIL: display does not have set schedule" && exit 1
-parse_something 'handle'  `curl -s -X GET $URL/image/$IMG_NEW_HANDLE/schedule`
+parse_something 'handle' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE/schedule`
 [ "x$P" != "x$SCHED_HANDLE" ] && echo "FAIL: image does not have set schedule" && exit 1
+curl -s -X DELETE $URL/schedule/$SCHED_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
+
+# let's add some images to schedule for this display
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_a' --data description=hello --data screen_type=7.5inch $URL/image`
+IMG_SCHED_A_HANDLE=$P
+curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_b' --data description=hello --data screen_type=7.5inch $URL/image`
+IMG_SCHED_B_HANDLE=$P
+curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_c' --data description=hello --data screen_type=7.5inch $URL/image`
+IMG_SCHED_C_HANDLE=$P
+curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_d' --data description=hello --data screen_type=7.5inch $URL/image`
+IMG_SCHED_D_HANDLE=$P
+curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
+
+# get the current scheduling offset
+parse_something 'now_scheduling_offset' `curl -s -X GET $URL/debug`
+SCHEDULING_OFFSET=$P
+
+# create some schedules based on these
+parse_something 'handle' `curl -s -X POST --data start=0 --data stop=$((SCHEDULING_OFFSET-10)) --data image_handle=$IMG_SCHED_A_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+SCHED_A_HANDLE=$P
+parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET-60)) --data stop=$((SCHEDULING_OFFSET+60)) --data image_handle=$IMG_SCHED_B_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+SCHED_B_HANDLE=$P
+parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET-3)) --data stop=$((SCHEDULING_OFFSET+3)) --data image_handle=$IMG_SCHED_C_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+SCHED_C_HANDLE=$P
+parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET+5)) --data stop=$((SCHEDULING_OFFSET+100)) --data image_handle=$IMG_SCHED_D_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+SCHED_D_HANDLE=$P
+
+# connect as a display again to see what we get
+TMPFILE=`mktemp`
+DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_HANDLE',some_value_at_'$TS | nc -q 1 localhost 54321`
+IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
+IMG_RECEIVED_SLEEP=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 2`
+IMG_RECEIVED_DATA=`echo -n $DISPLAY_OUTPUT | dd bs=1 skip=48 of=$TMPFILE 2>/dev/null`
+[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_SCHED_C_HANDLE" ] && echo "FAIL: display does not receive currently scheduled image"
+cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: received image data does not match expected" && exit 1)
+TMPFILE_SIZE=`wc -c $TMPFILE | cut -d ' ' -f 1`
+[ "x$TMPFILE_SIZE" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: received image data is not of expected length" && exit 1
+[ $IMG_RECEIVED_SLEEP -lt 0 ] || [ $IMG_RECEIVED_SLEEP -gt 10 ] && echo "FAIL: received sleep time is not expected time" && exit 1
+rm -rf $TMPFILE
+
+# sleep until this schedule expires
+sleep $((IMG_RECEIVED_SLEEP+1))
+
+# connect as a display again to see what we get
+TMPFILE=`mktemp`
+DISPLAY_OUTPUT=`echo $TS'_UPDATED,'$IMG_HANDLE',some_value_at_'$TS | nc -q 1 localhost 54321`
+IMG_RECEIVED_HANDLE=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 1`
+IMG_RECEIVED_SLEEP=`echo -n $DISPLAY_OUTPUT | cut -d ',' -f 2`
+IMG_RECEIVED_DATA=`echo -n $DISPLAY_OUTPUT | dd bs=1 skip=48 of=$TMPFILE 2>/dev/null`
+[ "x$IMG_RECEIVED_HANDLE" != "x$IMG_SCHED_B_HANDLE" ] && echo "FAIL: display does not receive currently scheduled image"
+cmp -s $TMPFILE $TESTFILE_OUTPUT || (echo "FAIL: received image data does not match expected" && exit 1)
+TMPFILE_SIZE=`wc -c $TMPFILE | cut -d ' ' -f 1`
+[ "x$TMPFILE_SIZE" != "x$TESTFILE_OUTPUT_SIZE" ] && echo "FAIL: received image data is not of expected length" && exit 1
+[ $IMG_RECEIVED_SLEEP -lt 50 ] || [ $IMG_RECEIVED_SLEEP -gt 60 ] && echo "FAIL: received sleep time is not expected time" && exit 1
+rm -rf $TMPFILE
 
 # delete everything
 curl -s -X DELETE $URL/display/$DSPL_HANDLE || (echo "FAIL: deleting display did not work" && exit 1)
 curl -s -X DELETE $URL/image/$IMG_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
 curl -s -X DELETE $URL/image/$IMG_NEW_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_SCHED_A_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_SCHED_B_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_SCHED_C_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/image/$IMG_SCHED_D_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)

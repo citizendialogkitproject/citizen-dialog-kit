@@ -304,6 +304,23 @@ model.connect(function() {
 // raw tcp pipe
 // ===============================
 
+// returns a string containing the supplied integer (in base 10)
+// prepended with zeros to length l
+//
+// feelings towards the seriousness of this language and
+// it's place on the server are redacted
+function itoa(i, l)
+{
+
+	var o = ''+i;
+	var pad = l-o.length;
+	while (pad--) {
+		o = '0' + o;
+	}
+	return o;
+
+}
+
 function display_new_client(socket)
 {
 
@@ -334,31 +351,46 @@ function display_new_client(socket)
 					return;
 				}
 				var display = rows[0];
-				// look up it's current image and send it
-				model.image_get(display.image_handle, function(err, rows) {
-					if (err || rows.length == 0) {
-						// whoops, we have nothing ready for this display, send it packing
-						console.log(prefix + " did not find image to send to display!");
-						socket.end();
-						return;
+
+				// look up the current schedule
+				scheduling.current_schedule(display.handle, function(sched) {
+					var image_handle_sending = undefined;
+					var seconds_left = undefined;
+					if (sched) {
+						// there's an active schedule, take its image
+						image_handle_sending = sched.schedule.image_handle;
+						seconds_left = sched.seconds_left;
 					} else {
-						// we know what to send, dish it out
-						var image_next = rows[0];
-						var file_path = config.API_PATH_PROCESSED + path.sep + image_next.md5;
-						var file_data = fs.readFileSync(file_path);
-						if ((image_handle == display.image_handle) && !config.API_RESEND_IDENTICAL_IMAGE) {
-							console.log(prefix + " not sending image that the display already has");
-							socket.write(image_next.handle + ',', function() { socket.end(); });
-						} else {
-							console.log(prefix + " sending new image handle="+image_next.handle);
-							socket.write(image_next.handle + ',', function() {
-								socket.write(file_data, function() {
-									console.log(prefix + " sent " + file_data.byteLength + " bytes.");
-									socket.end();
-								});
-							});
-						}
+						// no active schedule, take default image
+						image_handle_sending = display.image_handle;
+						seconds_left = 3600*12;
 					}
+					// look up the current image and send it
+					model.image_get(image_handle_sending, function(err, rows) {
+						if (err || rows.length == 0) {
+							// whoops, we have nothing ready for this display, send it packing
+							console.log(prefix + " did not find image to send to display!");
+							socket.end();
+							return;
+						} else {
+							// we know what to send, dish it out
+							var image_next = rows[0];
+							var file_path = config.API_PATH_PROCESSED + path.sep + image_next.md5;
+							var file_data = fs.readFileSync(file_path);
+							if ((image_handle == image_handle_sending) && !config.API_RESEND_IDENTICAL_IMAGE) {
+								console.log(prefix + " not sending image that the display already has");
+								socket.write(image_next.handle + ',' + itoa(seconds_left, 10) + ',', function() { socket.end(); });
+							} else {
+								console.log(prefix + " sending new image handle="+image_next.handle);
+								socket.write(image_next.handle + ',' + itoa(seconds_left, 10) + ',', function() {
+									socket.write(file_data, function() {
+										console.log(prefix + " sent " + file_data.byteLength + " bytes.");
+										socket.end();
+									});
+								});
+							}
+						}
+					});
 				});
 
 				// look up what image it has result for and save
