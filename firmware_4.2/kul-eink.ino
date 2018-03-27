@@ -12,6 +12,7 @@ uint8_t server[] = { 134, 58, 106, 7 }; // IP of server
 
 #define TALK_MAXWAIT            20
 #define TALK_IMAGE_HANDLE_LEN   36
+#define TALK_SLEEP_TIME_LEN      10
 // EEPROM offset of current image handle
 #define EEPROM_ADDR_IMAGE_HANDLE    0
 // start powersaving (turning off modem) when it's been this many
@@ -19,11 +20,11 @@ uint8_t server[] = { 134, 58, 106, 7 }; // IP of server
 #define POWERSAVING_FROM_MILLIS     (1000*60*5)
 int powersaving = 0;
 unsigned long last_powerburn = 0;
-// do a refresh is it's been this many millisecs ago since last_refresh
-#define REFRESH_FROM_MILLIS         (1000*60*60*12)
 // if we can't talk to the server, wait this long before trying again
 #define REFRESH_BACKOFF_MILLIS      (1000*60*5)
 unsigned long last_refresh = 0;
+// how long to sleep since last_refresh, updated from server each refresh
+unsigned long last_sleep_time = 1000*60*60;
 TCPClient tcpclient;
 #define BUFFER_LEN      1024*32
 uint8_t buffer[BUFFER_LEN];
@@ -35,6 +36,7 @@ int refresh(void)
     String device_id = System.deviceID();
     String button_presses = buttons_to_string();
     char image_handle[TALK_IMAGE_HANDLE_LEN + 1];
+    char sleep_time[TALK_SLEEP_TIME_LEN + 1];
 
     // load up the currently showing image handle from EEPROM
     EEPROM.get(EEPROM_ADDR_IMAGE_HANDLE, image_handle);
@@ -85,12 +87,18 @@ int refresh(void)
 
     tcpclient.stop();
 
-    if (buffer_len <= TALK_IMAGE_HANDLE_LEN) {
-        // not enough data for the image handle?
+    if (buffer_len <= TALK_IMAGE_HANDLE_LEN + 1 + TALK_SLEEP_TIME_LEN) {
+        // not enough data for the image handle and sleep time?
         goto fail;
     }
 
-    if (buffer_len > (TALK_IMAGE_HANDLE_LEN + 1)) {
+    memcpy(sleep_time, buffer + TALK_IMAGE_HANDLE_LEN + 1, TALK_SLEEP_TIME_LEN);
+    sleep_time[TALK_SLEEP_TIME_LEN] = 0;
+    last_sleep_time = atol(sleep_time) * 1000;
+    Serial.println("sleep time received:");
+    Serial.println(last_sleep_time);
+
+    if (buffer_len > (TALK_IMAGE_HANDLE_LEN + 1 + TALK_SLEEP_TIME_LEN + 1)) {
         Serial.println("image data received, updating display");
 
         // save the new image handle
@@ -139,6 +147,8 @@ void setup() {
 
     Serial.println("booted.");
 
+    refresh();
+
 }
 
 void loop() {
@@ -178,7 +188,7 @@ void loop() {
     }
 
     // see if we need to do a refresh
-    if (abs(now - last_refresh) > REFRESH_FROM_MILLIS) {
+    if (abs(now - last_refresh) > last_sleep_time) {
         Serial.println("starting timed refresh");
         refresh();
     }
