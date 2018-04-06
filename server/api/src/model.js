@@ -119,23 +119,23 @@ exports.display_mark_seen = function(handle, cb) {
 }
 
 exports.image_list = function(cb) {
-	pool.query('SELECT handle, name, description, screen_type, created_at FROM image;',
+	pool.query('SELECT handle, name, description, notes, screen_type, created_at FROM image;',
 		function(err, rows) {
 			cb(err, rows);
 		});
 }
 
 exports.image_get = function(handle, cb) {
-	pool.query('SELECT id, handle, name, description, screen_type, created_at, md5, bytes_original, bytes_processed FROM image WHERE handle = ?', [ handle ],
+	pool.query('SELECT id, handle, name, description, notes, screen_type, created_at, md5, bytes_original, bytes_processed FROM image WHERE handle = ?', [ handle ],
 		function(err, rows) {
 			cb(err, rows);
 		});
 }
 
-exports.image_create = function(name, description, screen_type, cb) {
+exports.image_create = function(name, description, notes, screen_type, cb) {
 	var id = uuid4();
-	var values = [ id, name, description, screen_type ];
-	pool.query('INSERT INTO image (handle, name, description, screen_type, created_at) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(6))', values,
+	var values = [ id, name, description, notes, screen_type ];
+	pool.query('INSERT INTO image (handle, name, description, notes, screen_type, created_at) VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(6))', values,
 		function(err, ret) {
 			cb(id, err, ret);
 		});
@@ -146,9 +146,9 @@ exports.image_delete = function(handle, cb) {
 		cb(err, ret);
 	});
 }
-exports.image_update = function(handle, name, description, screen_type, cb) {
-	var values = [ name , description, screen_type, handle ];
-	pool.query('UPDATE image SET name = ?, description = ?, screen_type = ? WHERE handle = ?', values, function(err, ret) {
+exports.image_update = function(handle, name, description, notes, screen_type, cb) {
+	var values = [ name , description, notes, screen_type, handle ];
+	pool.query('UPDATE image SET name = ?, description = ?, notes = ?, screen_type = ? WHERE handle = ?', values, function(err, ret) {
 		cb(err, ret);
 	});
 }
@@ -199,7 +199,6 @@ exports.result_list_by_image = function(image_id, cb) {
 }
 
 exports.schedule_list = function(display_handle, image_handle, only_current, cb) {
-	console.log("schedule_list(display_handle="+display_handle+", image_handle="+image_handle+" only_current="+only_current+")");
 	var filter = '';
 	var params = [];
 	var filters = [];

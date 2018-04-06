@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `kul_display`.`image` (
 	`handle` VARCHAR(128) NOT NULL UNIQUE,
 	`name` VARCHAR(128) NOT NULL,
 	`description` VARCHAR(256),
-	`tags` VARCHAR(512),
+	`notes` VARCHAR(512),
 	`created_at` DATETIME(6),
 	`md5` VARCHAR(32),
 	`bytes_original` INT,

@@ -191,8 +191,8 @@ app.get('/api/image', (req, res) => {
 	});
 });
 app.post('/api/image', (req, res) => {
-	console.log("creating image name="+req.body.name+" description="+req.body.description+" screen_type="+req.body.screen_type);
-	model.image_create(req.body.name, req.body.description, req.body.screen_type, function(id, err, ret) {
+	console.log("creating image name="+req.body.name+" description="+req.body.description+" notes="+req.body.notes+" screen_type="+req.body.screen_type);
+	model.image_create(req.body.name, req.body.description, req.body.notes, req.body.screen_type, function(id, err, ret) {
 		if (err) {
 			return res.status(500).json(err_snippet);
 		}
@@ -258,8 +258,8 @@ app.delete('/api/image/:handle', (req, res) => {
 	});
 });
 app.put('/api/image/:handle', (req, res) => {
-	console.log("updating image handle="+req.params.handle+" to name="+req.body.name+" description="+req.body.description+" screen_type="+req.body.screen_type);
-	model.image_update(req.params.handle, req.body.name, req.body.description, req.body.screen_type, function(err, rows) {
+	console.log("updating image handle="+req.params.handle+" to name="+req.body.name+" description="+req.body.description+" notes="+req.body.notes+" screen_type="+req.body.screen_type);
+	model.image_update(req.params.handle, req.body.name, req.body.description, req.body.notes, req.body.screen_type, function(err, rows) {
 		if (err) {
 			return res.status(404).json({ error : 'no such image' });
 		}
