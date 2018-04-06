@@ -58,6 +58,10 @@ app.get('/api/display', (req, res) => {
 });
 app.post('/api/display', (req, res) => {
 	console.log("creating display serial="+req.body.serial+" description="+req.body.description+" tags="+req.body.tags+" screen_type="+req.body.screen_type);
+	if (!epaper.screen_type_settings(req.body.screen_type)) {
+		console.log("  screen_type="+req.body.screen_type+" is invalid");
+		return res.status(403).json({ error : 'screen_type is not valid' });
+	}
 	model.display_create(req.body.serial, req.body.description, req.body.tags, req.body.screen_type, function(id, err, ret) {
 		if (err) {
 			res.status(500).json(err_snippet);
@@ -86,6 +90,10 @@ app.delete('/api/display/:handle', (req, res) => {
 });
 app.put('/api/display/:handle', (req, res) => {
 	console.log("updating display handle="+req.params.handle+" to serial="+req.body.serial+" description="+req.body.description + " tags="+req.body.tags+" screen_type="+req.body.screen_type);
+	if (!epaper.screen_type_settings(req.body.screen_type)) {
+		console.log("  screen_type="+req.body.screen_type+" is invalid");
+		return res.status(403).json({ error : 'screen_type is not valid' });
+	}
 	model.display_update(req.params.handle, req.body.serial, req.body.description, req.body.tags, req.body.screen_type, function(err, rows) {
 		if (err) {
 			res.status(404).json({ error : "no such display" });
@@ -192,6 +200,10 @@ app.get('/api/image', (req, res) => {
 });
 app.post('/api/image', (req, res) => {
 	console.log("creating image name="+req.body.name+" description="+req.body.description+" notes="+req.body.notes+" screen_type="+req.body.screen_type);
+	if (!epaper.screen_type_settings(req.body.screen_type)) {
+		console.log("  screen_type="+req.body.screen_type+" is invalid");
+		return res.status(403).json({ error : 'screen_type is not valid' });
+	}
 	model.image_create(req.body.name, req.body.description, req.body.notes, req.body.screen_type, function(id, err, ret) {
 		if (err) {
 			return res.status(500).json(err_snippet);
@@ -238,8 +250,9 @@ app.post('/api/image/:handle/original', (req, res) => {
 		var file = req.files.data;
 		var path_original = config.API_PATH_ORIGINAL + path.sep + file.md5;
 		var path_processed = config.API_PATH_PROCESSED + path.sep + file.md5;
+		var settings = epaper.screen_type_settings(rows[0].screen_type);
 		file.mv(path_original);
-		epaper.image_to_epaper(path_original, path_processed, function(n_bytes) {
+		epaper.image_to_epaper(settings, path_original, path_processed, function(n_bytes) {
 			model.image_update_file(req.params.handle, file.md5, file.data.byteLength, n_bytes, function(err, rows) {
 				if (err) {
 					return res.status(500).json(err_snippet);
@@ -259,6 +272,10 @@ app.delete('/api/image/:handle', (req, res) => {
 });
 app.put('/api/image/:handle', (req, res) => {
 	console.log("updating image handle="+req.params.handle+" to name="+req.body.name+" description="+req.body.description+" notes="+req.body.notes+" screen_type="+req.body.screen_type);
+	if (!epaper.screen_type_settings(req.body.screen_type)) {
+		console.log("  screen_type="+req.body.screen_type+" is invalid");
+		return res.status(403).json({ error : 'screen_type is not valid' });
+	}
 	model.image_update(req.params.handle, req.body.name, req.body.description, req.body.notes, req.body.screen_type, function(err, rows) {
 		if (err) {
 			return res.status(404).json({ error : 'no such image' });

@@ -4,7 +4,7 @@ const config = require('./config');
 
 const threshold = config.API_PIXEL_THRESHOLD;
 
-exports.image_to_epaper = function(path_input, path_output, cb) {
+exports.image_to_epaper = function(settings, path_input, path_output, cb) {
 
 	var output = fs.createWriteStream(path_output);
 	var n_bytes = 0;
@@ -48,12 +48,29 @@ exports.image_to_epaper = function(path_input, path_output, cb) {
 			var R = this.bitmap.data[off+0] >= threshold ? true : false;
 			var G = this.bitmap.data[off+1] >= threshold ? true : false;
 			var B = this.bitmap.data[off+2] >= threshold ? true : false;
-			var pixel = 0x0;	// default white
-			if (!G && !B) {
-				if (R) {
-					pixel = 0x2;	// red
-				} else {
-					pixel = 0x1;	// black
+			var pixel = undefined;
+			if (settings.color_strat === 'BW') {
+				pixel = 0x0;			// default white
+				if (R || G || B) {
+					pixel = 0x1;		// black
+				}
+			} else if (settings.color_strat === 'BWR') {
+				pixel = 0x0;			// default white
+				if (!G && !B) {
+					if (R) {
+						pixel = 0x2;	// red
+					} else {
+						pixel = 0x1;	// black
+					}
+				}
+			} else if (settings.color_strat === 'BWY') {
+				pixel = 0x0;			// default white
+				if (R || G || B) {
+					if (R && G && !B) {
+						pixel = 0x02;	// yellow
+					} else {
+						pixel = 0x01;	// black
+					}
 				}
 			}
 
@@ -84,5 +101,32 @@ exports.image_to_epaper = function(path_input, path_output, cb) {
 		cb(n_bytes);
 
 	});
+
+}
+
+exports.screen_types = {
+	'Waveshare_7.5_BW' : {
+		color_strat : 'BW',
+	},
+	'Waveshare_7.5_BWY' : {
+		color_strat : 'BWY',
+	},
+	'Waveshare_7.5_BWR' : {
+		color_strat : 'BWR',
+	},
+	'Waveshare_4.2_BW' : {
+		color_strat : 'BW',
+	},
+	'Waveshare_4.2_BWY' : {
+		color_strat : 'BWY',
+	},
+	'Waveshare_4.2_BWR' : {
+		color_strat : 'BWR',
+	},
+};
+
+exports.screen_type_settings = function(desc) {
+
+	return exports.screen_types[desc];
 
 }

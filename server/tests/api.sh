@@ -12,13 +12,19 @@ URL="http://admin:$API_ADMIN_PASSWORD@localhost/api"
 TS=`date +%Y%m%d%H%M%S`
 
 # create a display and an image, save their resulting handles
-parse_something 'handle' `curl -s -X POST --data name=$TS'_AAA' --data description=hello --data notes='some notes' --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_AAA' --data description=hello --data notes='some notes' --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_HANDLE=$P
-parse_something 'handle' `curl -s -X POST --data serial=$TS'_AAA' --data description=hello --data tags=one,two --data screen_type=7.5inch $URL/display`
+parse_something 'handle' `curl -s -X POST --data serial=$TS'_AAA' --data description=hello --data tags=one,two --data screen_type=Waveshare_7.5_BW $URL/display`
 DSPL_HANDLE=$P
 
+# create a display and image with bogus screen_type
+parse_something 'error' `curl -s -X POST --data name=$TS'_AAA' --data description=hello --data notes='some notes' --data screen_type=DisplayCorp5000 $URL/image`
+[ "x$P" != "xscreen_type is not valid" ] && echo "FAIL: could set bogus screen_type for display" && exit 1
+parse_something 'error' `curl -s -X POST --data serial=$TS'_AAA' --data description=hello --data tags=one,two --data screen_type=DisplayCorp5000 $URL/display`
+[ "x$P" != "xscreen_type is not valid" ] && echo "FAIL: could set bogus screen_type for image" && exit 1
+
 # update the image and read back
-curl -s -X PUT --data name=$TS'_UPDATED' --data description=$TS'_UPDATED' --data notes=$TS'_UPDATED' --data screen_type=4.5inch $URL/image/$IMG_HANDLE
+curl -s -X PUT --data name=$TS'_UPDATED' --data description=$TS'_UPDATED' --data notes=$TS'_UPDATED' --data screen_type=Waveshare_4.2_BW $URL/image/$IMG_HANDLE
 parse_something 'name' `curl -s -X GET $URL/image/$IMG_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating image lost data" && exit 1
 parse_something 'description' `curl -s -X GET $URL/image/$IMG_HANDLE`
@@ -26,10 +32,10 @@ parse_something 'description' `curl -s -X GET $URL/image/$IMG_HANDLE`
 parse_something 'notes' `curl -s -X GET $URL/image/$IMG_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating image lost data" && exit 1
 parse_something 'screen_type' `curl -s -X GET $URL/image/$IMG_HANDLE`
-[ "x$P" != "x4.5inch" ] && echo "FAIL: updating image lost data" && exit 1
+[ "x$P" != "xWaveshare_4.2_BW" ] && echo "FAIL: updating image lost data" && exit 1
 
 # update the display and read back
-curl -s -X PUT --data serial=$TS'_UPDATED' --data description=$TS'_UPDATED' --data tags=one,two,three --data screen_type=4.5inch $URL/display/$DSPL_HANDLE
+curl -s -X PUT --data serial=$TS'_UPDATED' --data description=$TS'_UPDATED' --data tags=one,two,three --data screen_type=Waveshare_4.2_BW $URL/display/$DSPL_HANDLE
 parse_something 'serial' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating display lost data" && exit 1
 parse_something 'description' `curl -s -X GET $URL/display/$DSPL_HANDLE`
@@ -37,7 +43,7 @@ parse_something 'description' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 parse_something 'tags' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != "xone,two,three" ] && echo "FAIL: updating display lost data" && exit 1
 parse_something 'screen_type' `curl -s -X GET $URL/display/$DSPL_HANDLE`
-[ "x$P" != "x4.5inch" ] && echo "FAIL: updating display lost data" && exit 1
+[ "x$P" != "xWaveshare_4.2_BW" ] && echo "FAIL: updating display lost data" && exit 1
 
 # update the display's image and read back
 curl -s -X PUT --data handle=$IMG_HANDLE $URL/display/$DSPL_HANDLE/image
@@ -45,14 +51,14 @@ parse_something 'image_handle' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != "x$IMG_HANDLE" ] && echo "FAIL: display does not have set image" && exit 1
 
 # create and set another image, read back
-parse_something 'handle' `curl -s -X POST --data name=$TS'_BBB' --data description=hello --data notes=hello --data screen_type=4.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_BBB' --data description=hello --data notes=hello --data screen_type=Waveshare_4.2_BW $URL/image`
 IMG_NEW_HANDLE=$P
 curl -s -X PUT --data handle=$IMG_NEW_HANDLE $URL/display/$DSPL_HANDLE/image
 parse_something 'image_handle' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != "x$IMG_NEW_HANDLE" ] && echo "FAIL: display does not have set image" && exit 1
 
 # create and set another image (of wrong screen_type), read back
-parse_something 'handle' `curl -s -X POST --data name=$TS'_CCC' --data description=hello --data notes=hello --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_CCC' --data description=hello --data notes=hello --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_WRONG_HANDLE=$P
 parse_something 'error' `curl -s -X PUT --data handle=$IMG_WRONG_HANDLE $URL/display/$DSPL_HANDLE/image`
 [ "x$P" != "xscreen_type mismatch" ] && echo "FAIL: setting image of wrong display type succeeded" && exit 1
@@ -117,16 +123,16 @@ parse_something 'handle' `curl -s -X GET $URL/image/$IMG_NEW_HANDLE/schedule`
 curl -s -X DELETE $URL/schedule/$SCHED_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
 
 # let's add some images to schedule for this display
-parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_a' --data description=hello --data notes=foo --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_a' --data description=hello --data notes=foo --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_SCHED_A_HANDLE=$P
 curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
-parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_b' --data description=hello --data notes=foo --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_b' --data description=hello --data notes=foo --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_SCHED_B_HANDLE=$P
 curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
-parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_c' --data description=hello --data notes=foo --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_c' --data description=hello --data notes=foo --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_SCHED_C_HANDLE=$P
 curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
-parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_d' --data description=hello --data notes=foo --data screen_type=7.5inch $URL/image`
+parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_d' --data description=hello --data notes=foo --data screen_type=Waveshare_7.5_BW $URL/image`
 IMG_SCHED_D_HANDLE=$P
 curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
 
