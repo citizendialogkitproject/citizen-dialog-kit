@@ -57,8 +57,8 @@ app.get('/api/display', (req, res) => {
 	});
 });
 app.post('/api/display', (req, res) => {
-	console.log("creating display serial="+req.body.serial+" description="+req.body.description+" screen_type="+req.body.screen_type);
-	model.display_create(req.body.serial, req.body.description, req.body.screen_type, function(id, err, ret) {
+	console.log("creating display serial="+req.body.serial+" description="+req.body.description+" tags="+req.body.tags+" screen_type="+req.body.screen_type);
+	model.display_create(req.body.serial, req.body.description, req.body.tags, req.body.screen_type, function(id, err, ret) {
 		if (err) {
 			res.status(500).json(err_snippet);
 		}
@@ -85,8 +85,8 @@ app.delete('/api/display/:handle', (req, res) => {
 	});
 });
 app.put('/api/display/:handle', (req, res) => {
-	console.log("updating display handle="+req.params.handle+" to serial="+req.body.serial+" description="+req.body.description + " screen_type="+req.body.screen_type);
-	model.display_update(req.params.handle, req.body.serial, req.body.description, req.body.screen_type, function(err, rows) {
+	console.log("updating display handle="+req.params.handle+" to serial="+req.body.serial+" description="+req.body.description + " tags="+req.body.tags+" screen_type="+req.body.screen_type);
+	model.display_update(req.params.handle, req.body.serial, req.body.description, req.body.tags, req.body.screen_type, function(err, rows) {
 		if (err) {
 			res.status(404).json({ error : "no such display" });
 		}

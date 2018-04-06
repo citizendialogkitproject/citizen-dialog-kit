@@ -14,10 +14,10 @@ TS=`date +%Y%m%d%H%M%S`
 # create a display and an image, save their resulting handles
 parse_something 'handle' `curl -s -X POST --data name=$TS'_AAA' --data description=hello --data screen_type=7.5inch $URL/image`
 IMG_HANDLE=$P
-parse_something 'handle' `curl -s -X POST --data serial=$TS'_AAA' --data description=hello --data screen_type=7.5inch $URL/display`
+parse_something 'handle' `curl -s -X POST --data serial=$TS'_AAA' --data description=hello --data tags=one,two --data screen_type=7.5inch $URL/display`
 DSPL_HANDLE=$P
 
-# update the display read back
+# update the image and read back
 curl -s -X PUT --data name=$TS'_UPDATED' --data description=$TS'_UPDATED' --data screen_type=4.5inch $URL/image/$IMG_HANDLE
 parse_something 'name' `curl -s -X GET $URL/image/$IMG_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating image lost data" && exit 1
@@ -27,11 +27,13 @@ parse_something 'screen_type' `curl -s -X GET $URL/image/$IMG_HANDLE`
 [ "x$P" != "x4.5inch" ] && echo "FAIL: updating image lost data" && exit 1
 
 # update the display and read back
-curl -s -X PUT --data serial=$TS'_UPDATED' --data description=$TS'_UPDATED' --data screen_type=4.5inch $URL/display/$DSPL_HANDLE
+curl -s -X PUT --data serial=$TS'_UPDATED' --data description=$TS'_UPDATED' --data tags=one,two,three --data screen_type=4.5inch $URL/display/$DSPL_HANDLE
 parse_something 'serial' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating display lost data" && exit 1
 parse_something 'description' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != x$TS'_UPDATED' ] && echo "FAIL: updating display lost data" && exit 1
+parse_something 'tags' `curl -s -X GET $URL/display/$DSPL_HANDLE`
+[ "x$P" != "xone,two,three" ] && echo "FAIL: updating display lost data" && exit 1
 parse_something 'screen_type' `curl -s -X GET $URL/display/$DSPL_HANDLE`
 [ "x$P" != "x4.5inch" ] && echo "FAIL: updating display lost data" && exit 1
 

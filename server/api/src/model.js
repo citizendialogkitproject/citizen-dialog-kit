@@ -23,6 +23,7 @@ exports.display_list = function(cb) {
 			d.handle as handle,
 			d.serial as serial,
 			d.description as description,
+			d.tags as tags,
 			d.screen_type as screen_type,
 			d.created_at as created_at,
 			d.last_seen_at as last_seen_at,
@@ -45,6 +46,7 @@ exports.display_get = function(handle, cb) {
 			d.handle as handle,
 			d.serial as serial,
 			d.description as description,
+			d.tags as tags,
 			d.screen_type as screen_type,
 			d.created_at as created_at,
 			d.last_seen_at as last_seen_at,
@@ -68,6 +70,7 @@ exports.display_get_by_serial = function(serial, cb) {
 			d.handle as handle,
 			d.serial as serial,
 			d.description as description,
+			d.tags as tags,
 			d.screen_type as screen_type,
 			d.created_at as created_at,
 			d.last_seen_at as last_seen_at,
@@ -82,10 +85,10 @@ exports.display_get_by_serial = function(serial, cb) {
 			cb(err, rows);
 		});
 }
-exports.display_create = function(serial, description, screen_type, cb) {
+exports.display_create = function(serial, description, tags, screen_type, cb) {
 	var id = uuid4();
-	var values = [ id, serial, description, screen_type ];
-	pool.query('INSERT INTO display (handle, serial, description, screen_type, created_at) VALUES (?, ?, ?, ?, UTC_TIMESTAMP(6))', values,
+	var values = [ id, serial, description, tags, screen_type ];
+	pool.query('INSERT INTO display (handle, serial, description, tags, screen_type, created_at) VALUES (?, ?, ?, ?, ?, UTC_TIMESTAMP(6))', values,
 		function(err, ret) {
 			cb(id, err, ret);
 		});
@@ -96,9 +99,9 @@ exports.display_delete = function(handle, cb) {
 		cb(err, ret);
 	});
 }
-exports.display_update = function(handle, serial, description, screen_type, cb) {
-	var values = [ serial, description, screen_type, handle ];
-	pool.query('UPDATE display SET serial = ?, description = ?, screen_type = ? WHERE handle = ?', values, function(err, ret) {
+exports.display_update = function(handle, serial, description, tags, screen_type, cb) {
+	var values = [ serial, description, tags, screen_type, handle ];
+	pool.query('UPDATE display SET serial = ?, description = ?, tags = ?, screen_type = ? WHERE handle = ?', values, function(err, ret) {
 		cb(err, ret);
 	});
 }

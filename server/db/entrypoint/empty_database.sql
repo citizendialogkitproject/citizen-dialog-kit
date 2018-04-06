@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS `kul_display`.`image` (
 	`handle` VARCHAR(128) NOT NULL UNIQUE,
 	`name` VARCHAR(128) NOT NULL UNIQUE,
 	`description` VARCHAR(256),
+	`tags` VARCHAR(512),
 	`created_at` DATETIME(6),
 	`md5` VARCHAR(32),
 	`bytes_original` INT,
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `kul_display`.`display` (
 	`created_at` DATETIME(6),
 	`last_seen_at` DATETIME(6),
 	`screen_type` VARCHAR(64),
+	`tags` VARCHAR(512),
 	`image_id` INT,
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`image_id`) REFERENCES `image`(`id`) ON DELETE SET NULL
