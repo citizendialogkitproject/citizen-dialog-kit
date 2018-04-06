@@ -39,8 +39,8 @@ var err_snippet = { error : "unspecified error" };
 app.get('/api/debug', (req, res) => {
 	var now = new Date();
 	res.json({
-		now_scheduling_offset : scheduling.seconds_since_last_monday(),
 		now : now,
+		now_ts : parseInt(now.getTime()/1000),
 	});
 });
 
@@ -125,7 +125,7 @@ app.get('/api/display/:handle/schedule', (req, res) => {
 			console.log(err);
 			return res.status(404).json({ error : 'no such display' });
 		}
-		model.schedule_list(req.params.handle, undefined, function(err, rows) {
+		model.schedule_list(req.params.handle, undefined, false, function(err, rows) {
 			if (err) {
 				console.dir(err);
 				return res.status(500).json(err_snippet);
@@ -140,7 +140,7 @@ app.get('/api/display/:handle/schedule', (req, res) => {
 // ===============================
 
 app.get('/api/schedule', (req, res) => {
-	model.schedule_list(undefined, undefined, function(err, rows) {
+	model.schedule_list(undefined, undefined, false, function(err, rows) {
 		if (err) {
 			console.dir(err);
 			return res.status(500).json(err_snippet);
@@ -286,7 +286,7 @@ app.get('/api/image/:handle/schedule', (req, res) => {
 			console.log(err);
 			return res.status(404).json({ error : 'no such image' });
 		}
-		model.schedule_list(undefined, req.params.handle, function(err, rows) {
+		model.schedule_list(undefined, req.params.handle, false, function(err, rows) {
 			if (err) {
 				return res.status(500).json(err_snippet);
 			}
@@ -360,10 +360,12 @@ function display_new_client(socket)
 						// there's an active schedule, take its image
 						image_handle_sending = sched.schedule.image_handle;
 						seconds_left = sched.seconds_left;
+						console.log(prefix + " active schedule handle="+sched.schedule.handle+", taking schedule's image_handle="+image_handle_sending+" and seconds_left="+seconds_left);
 					} else {
 						// no active schedule, take default image
 						image_handle_sending = display.image_handle;
 						seconds_left = 3600*12;
+						console.log(prefix + " no active schedule, taking default image_handle="+image_handle_sending+" and seconds_left="+seconds_left);
 					}
 					// look up the current image and send it
 					model.image_get(image_handle_sending, function(err, rows) {
@@ -426,7 +428,8 @@ function display_new_client(socket)
 }
 
 var display_server = net.createServer(display_new_client).listen(config.PORT_DISPLAY);
-
+/*
 process.on('uncaughtException', function(err) {
 	console.log("EXCEPTION: ",err.message);
 });
+*/

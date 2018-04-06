@@ -198,19 +198,24 @@ exports.result_list_by_image = function(image_id, cb) {
 		});
 }
 
-exports.schedule_list = function(display_handle, image_handle, cb) {
+exports.schedule_list = function(display_handle, image_handle, only_current, cb) {
+	console.log("schedule_list(display_handle="+display_handle+", image_handle="+image_handle+" only_current="+only_current+")");
 	var filter = '';
 	var params = [];
-	if (display_handle || image_handle) {
-		filter = 'WHERE';
+	var filters = [];
+	if (display_handle || image_handle || only_current) {
 		if (display_handle) {
-			filter += ' d.handle = ?';
+			filters.push(' d.handle = ?');
 			params.push(display_handle);
 		}
 		if (image_handle) {
-			filter += ' i.handle = ?';
+			filters.push(' i.handle = ?');
 			params.push(image_handle);
 		}
+		if (only_current) {
+			filters.push(' start <= UNIX_TIMESTAMP() AND UNIX_TIMESTAMP() < stop ');
+		}
+		filter = 'WHERE ' + filters.join(' AND ');
 	}
 
 	var q = `
@@ -277,5 +282,3 @@ exports.schedule_get = function(handle, cb) {
 			cb(err, rows);
 		});
 }
-
-

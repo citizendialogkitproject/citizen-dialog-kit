@@ -105,7 +105,8 @@ fi
 rm -rf $TMPFILE
 
 # create a simple schedule, read back and delete
-parse_something 'handle' `curl -s -X POST --data start=0 --data stop=1000 --data image_handle=$IMG_NEW_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+NOW_TS=`date +%s`
+parse_something 'handle' `curl -s -X POST --data start=$((NOW_TS-3600)) --data stop=$((NOW_TS+3600)) --data image_handle=$IMG_NEW_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_HANDLE=$P
 parse_something 'handle' `curl -s -X GET $URL/display/$DSPL_HANDLE/schedule`
 [ "x$P" != "x$SCHED_HANDLE" ] && echo "FAIL: display does not have set schedule" && exit 1
@@ -127,18 +128,15 @@ parse_something 'handle' `curl -s -X POST --data name=$TS'_sched_d' --data descr
 IMG_SCHED_D_HANDLE=$P
 curl -s -F 'data=@'$TESTFILE_INPUT $URL/image/$P/original
 
-# get the current scheduling offset
-parse_something 'now_scheduling_offset' `curl -s -X GET $URL/debug`
-SCHEDULING_OFFSET=$P
-
 # create some schedules based on these
-parse_something 'handle' `curl -s -X POST --data start=0 --data stop=$((SCHEDULING_OFFSET-10)) --data image_handle=$IMG_SCHED_A_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+NOW_TS=`date +%s`
+parse_something 'handle' `curl -s -X POST --data start=0 --data stop=$((NOW_TS-10)) --data image_handle=$IMG_SCHED_A_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_A_HANDLE=$P
-parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET-60)) --data stop=$((SCHEDULING_OFFSET+60)) --data image_handle=$IMG_SCHED_B_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+parse_something 'handle' `curl -s -X POST --data start=$((NOW_TS-60)) --data stop=$((NOW_TS+60)) --data image_handle=$IMG_SCHED_B_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_B_HANDLE=$P
-parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET-3)) --data stop=$((SCHEDULING_OFFSET+3)) --data image_handle=$IMG_SCHED_C_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+parse_something 'handle' `curl -s -X POST --data start=$((NOW_TS-3)) --data stop=$((NOW_TS+3)) --data image_handle=$IMG_SCHED_C_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_C_HANDLE=$P
-parse_something 'handle' `curl -s -X POST --data start=$((SCHEDULING_OFFSET+5)) --data stop=$((SCHEDULING_OFFSET+100)) --data image_handle=$IMG_SCHED_D_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
+parse_something 'handle' `curl -s -X POST --data start=$((NOW_TS+5)) --data stop=$((NOW_TS+100)) --data image_handle=$IMG_SCHED_D_HANDLE --data display_handle=$DSPL_HANDLE $URL/schedule`
 SCHED_D_HANDLE=$P
 
 # connect as a display again to see what we get
