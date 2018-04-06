@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS `kul_display`.`image`;
 CREATE TABLE IF NOT EXISTS `kul_display`.`image` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`handle` VARCHAR(128) NOT NULL UNIQUE,
-	`name` VARCHAR(128) NOT NULL UNIQUE,
+	`name` VARCHAR(128) NOT NULL,
 	`description` VARCHAR(256),
 	`tags` VARCHAR(512),
 	`created_at` DATETIME(6),
