@@ -428,8 +428,7 @@ function display_new_client(socket)
 }
 
 var display_server = net.createServer(display_new_client).listen(config.PORT_DISPLAY);
-/*
+
 process.on('uncaughtException', function(err) {
 	console.log("EXCEPTION: ",err.message);
 });
-*/
