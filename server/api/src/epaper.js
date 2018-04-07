@@ -50,30 +50,36 @@ exports.image_to_epaper = function(settings, path_input, path_output, cb) {
 			var B = this.bitmap.data[off+2] >= threshold ? true : false;
 			var pixel = undefined;
 			if (settings.color_strat === 'BW') {
-				pixel = 0x0;			// default white
-				if (R || G || B) {
+				// black only if nothing over threshold,
+				// else white
+				if (!(R || G || B)) {
 					pixel = 0x1;		// black
+				} else {
+					pixel = 0x0;		// white
 				}
 			} else if (settings.color_strat === 'BWR') {
-				pixel = 0x0;			// default white
-				if (!G && !B) {
-					if (R) {
-						pixel = 0x2;	// red
-					} else {
-						pixel = 0x1;	// black
-					}
+				// red if only red over threshold,
+				// black if nothing over threshold,
+				// else white
+				if (R && !(G || B)) {
+					pixel = 0x2;		// red
+				} else if (!(R || G || B)) {
+					pixel = 0x1;		// black
+				} else {
+					pixel = 0x0;		// white
 				}
 			} else if (settings.color_strat === 'BWY') {
-				pixel = 0x0;			// default white
-				if (R || G || B) {
-					if (R && G && !B) {
-						pixel = 0x02;	// yellow
-					} else {
-						pixel = 0x01;	// black
-					}
+				// yellow if only red and green over threshold,
+				// black if nothing over threshold,
+				// else white
+				if (R && G && !B) {
+					pixel = 0x2;		// yellow
+				} else if (!(R || G || B)) {
+					pixel = 0x1;		// black
+				} else {
+					pixel = 0x0;		// white
 				}
 			}
-
 			if (prev_pixel == null) {
 				// start of new sequence of equal pixels
 				prev_pixel = pixel;
