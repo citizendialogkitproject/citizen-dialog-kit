@@ -107,7 +107,8 @@ int refresh(void)
         EEPROM.put(EEPROM_ADDR_IMAGE_HANDLE, image_handle);
 
         // blit the new image, in the buffer right after the handle and separator
-        eink_blit(buffer + TALK_IMAGE_HANDLE_LEN + 1, buffer_len - TALK_IMAGE_HANDLE_LEN - 1);
+        eink_blit(buffer + TALK_IMAGE_HANDLE_LEN + 1 + TALK_SLEEP_TIME_LEN + 1,
+            buffer_len - TALK_IMAGE_HANDLE_LEN - 1 - TALK_SLEEP_TIME_LEN - 1);
     } else {
         Serial.println("did not receive image data, not blitting");
     }
