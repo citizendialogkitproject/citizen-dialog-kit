@@ -222,6 +222,8 @@ exports.schedule_list = function(display_handle, image_handle, only_current, cb)
 			s.handle as handle,
 			d.handle as display_handle,
 			i.handle as image_handle,
+			i.name as image_name,
+			i.description as image_description,
 			s.start as start,
 			s.stop as stop,
 			s.created_at as created_at
@@ -265,6 +267,8 @@ exports.schedule_get = function(handle, cb) {
 			s.handle as handle,
 			d.handle as display_handle,
 			i.handle as image_handle,
+			i.name as image_name,
+			i.description as image_description,
 			s.start as start,
 			s.stop as stop,
 			s.created_at as created_at
