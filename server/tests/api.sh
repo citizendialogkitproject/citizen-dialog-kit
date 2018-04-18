@@ -189,3 +189,7 @@ curl -s -X DELETE $URL/image/$IMG_SCHED_A_HANDLE || (echo "FAIL: deleting image 
 curl -s -X DELETE $URL/image/$IMG_SCHED_B_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
 curl -s -X DELETE $URL/image/$IMG_SCHED_C_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
 curl -s -X DELETE $URL/image/$IMG_SCHED_D_HANDLE || (echo "FAIL: deleting image did not work" && exit 1)
+curl -s -X DELETE $URL/schedule/$SCHED_A_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
+curl -s -X DELETE $URL/schedule/$SCHED_B_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
+curl -s -X DELETE $URL/schedule/$SCHED_C_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
+curl -s -X DELETE $URL/schedule/$SCHED_D_HANDLE || (echo "FAIL: deleting schedule did not work" && exit 1)
