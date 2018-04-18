@@ -11,4 +11,5 @@ module.exports = {
 	API_PIXEL_THRESHOLD : process.env.API_PIXEL_THRESHOLD || 127,
 	API_ADMIN_PASSWORD : process.env.API_ADMIN_PASSWORD || 'flotilla',
 	API_RESEND_IDENTICAL_IMAGE : (process.env.API_RESEND_IDENTICAL_IMAGE == 'true') ? true : false,
+	API_DISPLAY_CONNECT_INTERVAL : parseInt(process.env.API_DISPLAY_CONNECT_INTERVAL) || (3600*12),
 };

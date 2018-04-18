@@ -381,7 +381,7 @@ function display_new_client(socket)
 					} else {
 						// no active schedule, take default image
 						image_handle_sending = display.image_handle;
-						seconds_left = 3600*12;
+						seconds_left = config.API_DISPLAY_CONNECT_INTERVAL;
 						console.log(prefix + " no active schedule, taking default image_handle="+image_handle_sending+" and seconds_left="+seconds_left);
 					}
 					// look up the current image and send it
