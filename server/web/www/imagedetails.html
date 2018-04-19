@@ -19,20 +19,29 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700,900" rel="stylesheet">
     <title>Citizen Dialog Kit | Research[x]Design</title>
   </head>
-  <body onload="loadDisplays()">
+  <body onload='imageDetails()'>
     <div class="container">
       <h1><img src="design/images/cdk-logo-icon.png" alt="citizen dialog kit logo">citizen dialog kit</h1>
-      <h2 class="current">Your displays</h2>
       <ul class="nav justify-content-start">
-          <button type="button" onclick="window.location.href = 'add.html'" class="btn btn-primary addDisplay">Add Display</button>
+        <a class="backButton" href="#">< Back</a>
       </ul>
-      <div class="displays">
+      <ul class="nav justify-content-end">
+          <button type="button" onclick="deleteSchedule()" class="btn btn-danger deletebutton">Delete image</button>
+      </ul>
+	  <h2 class="current"></h2>
+      <div class="row">
+	      <div class="col-md-5">
+		      <div class="curImageInfo">
 
+		      </div>
+	      </div>
+	      <div class="col-md-7">
+		  	<canvas id="pollingResults"></canvas>
+	      </div>
       </div>
-    </div>
-  <footer class="footer font-small blue pt-4 mt-4">
+  <footer class="footer">
       <div class="footer-copyright py-3 text-center">
-          <a target="_blank" href="http://CitizenDialogKit.org"> CitizenDialogKit.org </a>
+          <a target="_blank" href="http://CitizenDialogueKit.org"> CitizenDialogueKit.org </a>
       </div>
   </footer>
   </body>

@@ -3,25 +3,31 @@
   <head>
     <meta charset="utf-8">
       <script src="https://code.jquery.com/jquery-3.3.1.js" charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.js" charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/locale/nl-be.js" charset="utf-8"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap-datetimepicker.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="design/css/bootstrap-datetimepicker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" charset="utf-8"></script>
+	<script src="/js/underscore-min.js" charset="utf-8"></script>
+	<script src="/js/fullcalendar.min.js" charset="utf-8"></script>
+	<script src="/js/nl-be.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="design/css/fullcalendar.min.css">
     <link rel="stylesheet" href="design/css/styles.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700,900" rel="stylesheet">
     <title>Citizen Dialog Kit | Research[x]Design</title>
   </head>
   <body onload='getDisplayContent()'>
     <div class="container">
       <h1><img src="design/images/cdk-logo-icon.png" alt="citizen dialog kit logo">citizen dialog kit</h1>
-      <h2 class="current">Plan Content</h2>
+      <h2 class="current">Plan Content for </h2>
       <ul class="nav justify-content-start">
         <a class="backButton" href="start.html">< Back</a>
       </ul>
-      <div class="currentImage">
-        <h4>Current image</h4>
-        <img src="" alt="">
-        <br><br>
-        <div class="curImageInfo"></div>
-      <hr>
+      <div id="calendar" style="margin-bottom:30px;">
+      	
       </div>
         <form class="imageInfo" enctype="multipart/form-data" action="" method="post">
           <h4>Upload new image</h4>
@@ -49,6 +55,22 @@
               <label  class="custom-file-label" for="inputGroupFile01">Choose file</label>
             </div>
           </div>
+          <br/>
+	      <div class="row">
+	          <div class="col-sm-2">
+			  	<label for="imageType">Starts at</label>
+	          </div>
+	          <div class="col-sm-4">
+	            <input type="text" name="start" id="start" class="dp">
+	          </div>
+	          <div class="col-sm-2">
+			  	<label for="imageType">Ends at</label>
+	          </div>
+	          <div class="col-sm-4">
+	            <input  type="text" name="stop" id="stop" class="dp2">
+	          </div>
+	      </div>
+            <small class="form-text text-muted">When should this content be displayed? When this period ends, the display checks back with the system for new content.</small>
           <br>
           <button type="submit" id="uploadimage" class="btn btn-primary addContent">Add content</button>
         </form>
@@ -67,6 +89,11 @@
           Something went really wrong... Head back and try again or find help.
         </div>
       </div>
+      <div class="failed3" style="display:none">
+        <div class="alert alert-dark" role="alert">
+          Please provide a start and stop moment for this content.
+        </div>
+      </div>
     </div>
   <footer class="footer">
       <div class="footer-copyright py-3 text-center">
@@ -74,5 +101,5 @@
       </div>
   </footer>
   </body>
-  <script src="app.js" charset="utf-8"></script>
+  <script src="/js/app.js" charset="utf-8"></script>
 </html>

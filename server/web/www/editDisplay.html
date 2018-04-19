@@ -3,15 +3,29 @@
   <head>
     <meta charset="utf-8">
       <script src="https://code.jquery.com/jquery-3.3.1.js" charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/moment.js" charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.0/locale/nl-be.js" charset="utf-8"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap-datetimepicker.min.js" charset="utf-8"></script>
+	<link rel="stylesheet" href="design/css/bootstrap-datetimepicker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js" charset="utf-8"></script>
+	<script src="/js/underscore-min.js" charset="utf-8"></script>
+	<script src="/js/fullcalendar.min.js" charset="utf-8"></script>
+	<script src="/js/nl-be.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="design/css/fullcalendar.min.css">
     <link rel="stylesheet" href="design/css/styles.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700,900" rel="stylesheet">
     <title>Citizen Dialog Kit | Research[x]Design</title>
   </head>
   <body onload='getDisplayinfo()'>
     <div class="container">
       <h1><img src="design/images/cdk-logo-icon.png" alt="citizen dialog kit logo">citizen dialog kit</h1>
       <h2 class="current">Edit display</h2>
+      <ul class="nav justify-content-start">
+        <a class="backButton" href="#">< Back</a>
+      </ul>
       <ul class="nav justify-content-end">
           <button type="button" onclick="deleteDisplay()" class="btn btn-danger deletebutton">Delete Display</button>
           <button type="button" onclick="window.location.href = 'start.html'" class="btn btn-secondary cancelbutton">Cancel</button>
@@ -28,11 +42,11 @@
             <input name="description" type="text" class="form-control" id="displayDescr" placeholder="A brief description">
             <small class="form-text text-muted">A description to make it easier to identify this display.</small>
           </div>
-          <!-- <div class="form-group">
+          <div class="form-group">
             <label for="tags">Tags</label>
             <input name="tags" type="text" class="form-control" id="tags" placeholder="Enter tags">
             <small class="form-text text-muted">You can use tags to group displays, for example by a location tag. List tags with a comma between them.</small>
-          </div> -->
+          </div>
           <div class="form-group">
             <label for="displayType">Type of display</label>
             <select name="screen_type" class="form-control" id="displayType">
@@ -71,5 +85,5 @@
       </div>
   </footer>
   </body>
-  <script src="app.js" charset="utf-8"></script>
+  <script src="/js/app.js" charset="utf-8"></script>
 </html>
