@@ -8,7 +8,9 @@ The inspiration behind the project is the increasing amount of open data and cit
 Use this tool kit to build and deploy impactful public displays to start conversations about the topics you care about most.
 
 ## Versions
-The Citizen Dialog Kit is still in development and important features (such as scheduling) are not supported yet. Updates to come.
+The Citizen Dialog Kit is still in development. Updates to come.
+
+The current version includes basic scheduling functionality. See code for details (not included in the documentation below at this time). 
 
 ## Documentation
 1. [Hardware Assembly and Firmware Installation](#1-hardware-and-firmware)
@@ -297,4 +299,4 @@ A demo front-end application is added to the repository to demonstrate display m
 This demo has passwords in the open. Use a solution like [nginx basic authentication](https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/) to protect the sensitive information.
 
 ### 5. Weather Resistant Casing
-Designs for easy laser cutter casing manufacturing and assembly will be shared soon.
+Designs for easy laser cutter casing construction are included. We are in the process of developing 3D printed alternatives. 
